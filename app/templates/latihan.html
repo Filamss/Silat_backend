@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Data Latihan</h3>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahLatihan">
+      <i class="bi bi-plus-circle"></i> Tambah Latihan
+    </button>
+  </div>
+
+  <table class="table table-bordered text-center align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>No</th>
+        <th>Nama Latihan</th>
+        <th>Tanggal</th>
+        <th>Durasi (menit)</th>
+        <th>Tingkat</th>
+        <th>Jumlah Gerakan</th>
+        <th>Gambar</th>
+        <th>Gerakan</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for latihan in daftar_latihan %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ latihan.nama_latihan }}</td>
+        <td>{{ latihan.tanggal }}</td>
+        <td>{{ latihan.durasi }}</td>
+        <td>{{ latihan.tingkat }}</td>
+        <td>{{ latihan.gerakan | length }}</td>
+        <td>
+          {% if latihan.gambar %}
+          <img src="{{ url_for('serve_gambar', filename=latihan.gambar) }}" height="70" width="90" />
+          {% else %}-{% endif %}
+        </td>
+        <td>
+          <ul class="mb-0 ps-3 text-start">
+            {% for gerakan in latihan.gerakan %}
+            <li>{{ gerakan.nama_gerakan }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditLatihan{{ latihan.id }}">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <form action="/latihan/hapus/{{ latihan.id }}" method="POST" style="display:inline">
+            <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Yakin hapus?')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+
+      <!-- Modal Edit Latihan -->
+      <div class="modal fade" id="modalEditLatihan{{ latihan.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <form action="/latihan/edit/{{ latihan.id }}" method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Latihan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label>Nama Latihan</label>
+                    <input type="text" name="nama_latihan" value="{{ latihan.nama_latihan }}" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label>Tanggal</label>
+                    <input type="date" name="tanggal" value="{{ latihan.tanggal }}" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label>Durasi</label>
+                    <input type="number" name="durasi" value="{{ latihan.durasi }}" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label>Tingkat</label>
+                    <select name="tingkat" class="form-select" required>
+                      <option value="Pemula" {% if latihan.tingkat == "Pemula" %}selected{% endif %}>Pemula</option>
+                      <option value="Menengah" {% if latihan.tingkat == "Menengah" %}selected{% endif %}>Menengah</option>
+                      <option value="Lanjutan" {% if latihan.tingkat == "Lanjutan" %}selected{% endif %}>Lanjutan</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label>Gambar (opsional)</label>
+                    <input type="file" name="gambar" class="form-control" accept="image/*">
+                  </div>
+                  <div class="col-12">
+                    <label>Gerakan</label>
+                    <select name="gerakan" class="form-select selectGerakan" multiple required>
+                      {% for gerakan in daftar_gerakan %}
+                      <option value="{{ gerakan.nama_gerakan }}"
+                        {% for g in latihan.gerakan %}
+                          {% if g.nama_gerakan == gerakan.nama_gerakan %}selected{% endif %}
+                        {% endfor %}
+                      >{{ gerakan.nama_gerakan }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Perubahan</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Tambah Latihan -->
+<div class="modal fade" id="modalTambahLatihan" tabindex="-1" aria-labelledby="modalTambahLatihanLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="{{ url_for('tambah_latihan') }}" method="POST" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahLatihanLabel">Tambah Latihan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label>Nama Latihan</label>
+              <input type="text" name="nama_latihan" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label>Tanggal</label>
+              <input type="date" name="tanggal" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label>Durasi (menit)</label>
+              <input type="number" name="durasi" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label>Tingkat</label>
+              <select name="tingkat" class="form-select" required>
+                <option value="">-- Pilih --</option>
+                <option value="pemula">Pemula</option>
+                <option value="menengah">Menengah</option>
+                <option value="lanjutan">Lanjutan</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label>Gambar</label>
+              <input type="file" name="gambar" class="form-control" accept="image/*">
+            </div>
+            <div class="col-12">
+              <label>Gerakan</label>
+              <select name="gerakan" class="form-select" multiple required>
+                {% for gerakan in daftar_gerakan %}
+                <option value="{{ gerakan.nama_gerakan }}">{{ gerakan.nama_gerakan }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Simpan</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

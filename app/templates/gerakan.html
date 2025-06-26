@@ -1,0 +1,236 @@
+{% extends "layout.html" %} {% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Data Gerakan</h3>
+    <button
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#modalTambahGerakan"
+    >
+      <i class="bi bi-plus-circle"></i> Tambah Gerakan
+    </button>
+  </div>
+
+  <table class="table table-bordered mt-3 text-center">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Gerakan</th>
+        <th>Durasi (detik)</th>
+        <th>Instruksi</th>
+        <th>Repetisi</th>
+        <th>Gambar</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for gerakan in daftar_gerakan %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ gerakan.nama_gerakan }}</td>
+        <td>{{ gerakan.durasi or "00.00" }}</td>
+        <td>{{ gerakan.instruksi or '-' }}</td>
+        <td>{{ gerakan.repetisi or 0 }}</td>
+        <td>
+          {% if gerakan.gambar %}
+          <img
+            src="{{ url_for('serve_gerakan', filename=gerakan.gambar) }}"
+            height="100"
+            width="60"
+          />
+          {% else %} Tidak ada {% endif %}
+        </td>
+        <td>
+          <button
+            class="btn btn-sm btn-warning"
+            data-bs-toggle="modal"
+            data-bs-target="#modalEditGerakan{{ gerakan.id }}"
+          >
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <form
+            action="/gerakan/hapus/{{ gerakan.id }}"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              class="btn btn-sm btn-danger"
+              type="submit"
+              onclick="return confirm('Yakin hapus gerakan ini?')"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+
+      <!-- Modal Edit Gerakan -->
+      <div
+        class="modal fade"
+        id="modalEditGerakan{{ gerakan.id }}"
+        tabindex="-1"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form
+              action="/gerakan/edit/{{ gerakan.id }}"
+              method="POST"
+              enctype="multipart/form-data"
+            >
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Gerakan</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label>Nama Gerakan</label>
+                  <input
+                    type="text"
+                    name="nama_gerakan"
+                    value="{{ gerakan.nama_gerakan }}"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label>Durasi (detik)</label>
+                  <input
+                    type="number"
+                    name="durasi"
+                    value="{{ gerakan.durasi }}"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label>Instruksi</label>
+                  <textarea name="instruksi" class="form-control">
+{{ gerakan.instruksi }}</textarea
+                  >
+                </div>
+                <div class="mb-3">
+                  <label>Repetisi</label>
+                  <input
+                    type="number"
+                    name="repetisi"
+                    value="{{ gerakan.repetisi }}"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label>Gambar (opsional)</label>
+                  <input
+                    type="file"
+                    name="gambar"
+                    class="form-control"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">
+                  Simpan Perubahan
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <tr>
+        <td colspan="7" class="text-center">Belum ada data gerakan.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Tambah Gerakan -->
+<div
+  class="modal fade"
+  id="modalTambahGerakan"
+  tabindex="-1"
+  aria-labelledby="modalTambahGerakanLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form
+        action="/gerakan/tambah"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTambahGerakanLabel">
+            Tambah Gerakan
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Nama Gerakan</label>
+            <input
+              type="text"
+              name="nama_gerakan"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label>Durasi (detik)</label>
+            <input type="number" name="durasi" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label>Instruksi</label>
+            <textarea name="instruksi" class="form-control"></textarea>
+          </div>
+          <div class="mb-3">
+            <label>Repetisi</label>
+            <input
+              type="number"
+              name="repetisi"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label>Gambar</label>
+            <input
+              type="file"
+              name="gambar"
+              class="form-control"
+              accept="image/*"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Simpan</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

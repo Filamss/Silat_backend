@@ -1,0 +1,35 @@
+{% extends "layout.html" %} {% block content %}
+<div class="app-content-header container-fluid">
+  <div class="row mb-2">
+    <div class="col-sm-6"><h3>Dashboard</h3></div>
+  </div>
+</div>
+
+<div class="app-content container-fluid">
+  <div class="row">
+    <div class="col-lg-6 col-6">
+      <div class="small-box text-bg-primary">
+        <div class="inner">
+          <h3>{{jumlah_gerakan}}</h3>
+          <p>Gerakan</p>
+        </div>
+        <a href="/gerakan" class="small-box-footer"
+          >Lihat <i class="bi bi-arrow-right"></i
+        ></a>
+      </div>
+    </div>
+    <div class="col-lg-6 col-6">
+      <div class="small-box text-bg-success">
+        <div class="inner">
+          <h3>{{jumlah_latihan}}</h3>
+          <p>Latihan</p>
+        </div>
+        <a href="/latihan" class="small-box-footer"
+          >Lihat <i class="bi bi-arrow-right"></i
+        ></a>
+      </div>
+    </div>
+  
+  </div>
+</div>
+{% endblock %}

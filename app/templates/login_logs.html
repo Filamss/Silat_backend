@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Histori Login Admin</h3>
+  <table class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>Waktu</th>
+        <th>Email</th>
+        <th>Nama</th>
+        <th>IP</th>
+        <th>User Agent</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.waktu.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ log.email }}</td>
+        <td>{{ log.nama }}</td>
+        <td>{{ log.ip }}</td>
+        <td>{{ log.user_agent }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+flask
+pymongo
+flask-jwt-extended
+flask-cors
+python-dotenv
+werkzeug
+flask-mail
+google-auth
