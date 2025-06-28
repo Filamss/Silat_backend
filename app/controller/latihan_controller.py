@@ -2,12 +2,13 @@ import os
 import uuid
 import json
 from flask import jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import mongo
 from app.model.latihan import serialize_latihan
 from app.model.latihan import serialize_latihan, serialize_latihan_with_detail
+from app.utils.admin_guard import require_admin_key
 from datetime import datetime
 from bson.objectid import ObjectId
-from app.utils.admin_guard import require_admin_key
 
 ALLOWED_GAMBAR = {"jpg", "jpeg", "png", "gif"}
 
@@ -20,6 +21,7 @@ def allowed_file(filename, jenis):
 class LatihanController:
 
     @staticmethod
+    @jwt_required()
     def get_all_latihan():
         try:
             tingkat = request.args.get("tingkat")
@@ -44,7 +46,10 @@ class LatihanController:
                 "success": False,
                 "message": f"Gagal mengambil data latihan: {str(e)}"
             }), 500
+
+        
     @staticmethod
+    @jwt_required()
     def get_latihan_by_id(id):
         try:
             latihan = mongo.db.latihan.find_one({"_id": ObjectId(id)})
@@ -62,8 +67,8 @@ class LatihanController:
                 "message": f"Gagal mengambil data latihan: {str(e)}"
             }), 500
 
-
     @staticmethod
+    @jwt_required()
     def get_user_latihan_tanggal():
         try:
             latihan_list = list(mongo.db.latihan.find({}, {"created_at": 1}))
@@ -86,6 +91,7 @@ class LatihanController:
                 "success": False,
                 "message": f"Gagal mengambil tanggal latihan: {str(e)}"
             }), 500
+
 
     @staticmethod
     @require_admin_key

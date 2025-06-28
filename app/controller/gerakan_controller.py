@@ -1,6 +1,7 @@
 import os
 import uuid
 from flask import request, jsonify
+from flask_jwt_extended import jwt_required
 from app import mongo
 from bson.objectid import ObjectId
 from app.model.gerakan import serialize_gerakan
@@ -54,6 +55,7 @@ class GerakanController:
             return jsonify({"success": False, "message": f"Gagal menambahkan gerakan: {str(e)}"}), 500
 
     @staticmethod
+    @jwt_required()
     def get_all_gerakan():
         try:
             daftar = list(mongo.db.gerakan.find())
@@ -65,3 +67,4 @@ class GerakanController:
             })
         except Exception as e:
             return jsonify({"success": False, "message": f"Gagal mengambil gerakan: {str(e)}"}), 500
+

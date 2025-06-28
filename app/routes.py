@@ -19,40 +19,47 @@ def init_routes(app):
     # ===================== #
     # 🔐 API ENDPOINT (For FLUTTER)
     # ===================== #
-    app.route('/api/register', methods=['POST'])(UserController.register)
-    app.route('/api/login', methods=['POST'])(UserController.login)
-    app.route("/api/login-google", methods=["POST"])(UserController.login_google)
-    app.route('/api/logout', methods=['POST'])(UserController.logout)
-    app.route("/api/verify-otp", methods=["POST"])(UserController.verify_otp)
-    app.route('/api/resend-otp', methods=['POST'])(UserController.resend_otp)
-    app.route("/api/update-jenis-kelamin", methods=["POST"])(UserController.update_jenis_kelamin)
-    app.route('/api/update-umur', methods=['POST'])(UserController.update_umur)
-    app.route('/api/update-tinggi', methods=['POST'])(UserController.update_tinggi)
-    app.route('/api/update-berat', methods=['POST'])(UserController.update_berat)
 
-    app.route('/api/artikel', methods=['POST'])(artikel_controller.create_artikel)
+    # --- AUTH & USER MANAGEMENT ---
+    app.route('/api/login', methods=['POST'])(UserController.login)
+    app.route('/api/login-google', methods=['POST'])(UserController.login_google)
+    app.route('/api/logout', methods=['POST'])(UserController.logout)
+    app.route('/api/register', methods=['POST'])(UserController.register)
+    app.route('/api/resend-otp', methods=['POST'])(UserController.resend_otp)
+    app.route('/api/verify-otp', methods=['POST'])(UserController.verify_otp)
+
+    # --- USER PROFILE UPDATE ---
+    app.route('/api/update-berat', methods=['POST'])(UserController.update_berat)
+    app.route('/api/update-jenis-kelamin', methods=['POST'])(UserController.update_jenis_kelamin)
+    app.route('/api/update-tinggi', methods=['POST'])(UserController.update_tinggi)
+    app.route('/api/update-umur', methods=['POST'])(UserController.update_umur)
+
+    # --- ARTIKEL ---
     app.route('/api/artikel', methods=['GET'])(artikel_controller.get_artikel)
+    app.route('/api/artikel', methods=['POST'])(artikel_controller.create_artikel)
     app.route('/api/artikel/<id>', methods=['GET'])(artikel_controller.get_artikel_by_id)
     app.route('/api/artikel/<id>', methods=['PUT'])(artikel_controller.update_artikel)
     app.route('/api/artikel/<id>', methods=['DELETE'])(artikel_controller.delete_artikel)
 
-    app.route("/api/latihan", methods=["GET"])(LatihanController.get_all_latihan)
-    app.route("/api/latihan", methods=["POST"])(LatihanController.create_latihan)
-    app.route("/api/latihan/<id>", methods=["PUT"])(LatihanController.update_latihan)
-    app.route("/api/latihan/<id>", methods=["DELETE"])(LatihanController.delete_latihan)
-    app.route("/api/latihan/<id>", methods=["GET"])(LatihanController.get_latihan_by_id)
-    app.route("/api/latihan-user-tanggal", methods=["GET"])(LatihanController.get_user_latihan_tanggal)
+    # --- LATIHAN ---
+    app.route('/api/latihan', methods=['GET'])(LatihanController.get_all_latihan)
+    app.route('/api/latihan', methods=['POST'])(LatihanController.create_latihan)
+    app.route('/api/latihan/<id>', methods=['GET'])(LatihanController.get_latihan_by_id)
+    app.route('/api/latihan/<id>', methods=['PUT'])(LatihanController.update_latihan)
+    app.route('/api/latihan/<id>', methods=['DELETE'])(LatihanController.delete_latihan)
+    app.route('/api/latihan-user-tanggal', methods=['GET'])(LatihanController.get_user_latihan_tanggal)
 
-    app.route('/api/gerakan', methods=['POST'])(GerakanController.create_gerakan)
+    # --- GERAKAN ---
     app.route('/api/gerakan', methods=['GET'])(GerakanController.get_all_gerakan)
+    app.route('/api/gerakan', methods=['POST'])(GerakanController.create_gerakan)
 
+    # --- RIWAYAT LATIHAN ---
+    app.route('/api/riwayat', methods=['GET'])(riwayat_controller.ambil_riwayat)
+    app.route('/api/riwayat', methods=['POST'])(riwayat_controller.simpan_riwayat)
 
-    app.route("/api/riwayat", methods=["POST"])(riwayat_controller.simpan_riwayat)
-    app.route("/api/riwayat", methods=["GET"])(riwayat_controller.ambil_riwayat)
-
-    app.route("/api/riwayat-berat", methods=["POST"])(riwayat_berat_controller.simpan_riwayat_berat)
-    app.route("/api/riwayat-berat/<email>", methods=["GET"])(riwayat_berat_controller.ambil_riwayat_berat)
-
+    # --- RIWAYAT BERAT ---
+    app.route('/api/riwayat-berat', methods=['GET'])(riwayat_berat_controller.ambil_riwayat_berat)
+    app.route('/api/riwayat-berat', methods=['POST'])(riwayat_berat_controller.simpan_riwayat_berat)
 
 
     @require_api_key

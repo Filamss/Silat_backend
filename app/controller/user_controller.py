@@ -2,6 +2,7 @@ import random
 import uuid
 import smtplib
 from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import mongo, response
 from app.api_service import generate_token
@@ -12,7 +13,8 @@ from database import get_otp_from_db, store_otp_in_db
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
-GOOGLE_CLIENT_ID = "1082666813493-b45d6ti72k5cvahp6hnno4c18nq1o2t5.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = "1082666813493-u87sd3hatgt06n7jqhtn3433dj3m4vat.apps.googleusercontent.com"
+
 
 class UserController:
 
@@ -64,7 +66,8 @@ class UserController:
         if not user.get("otp_verified", False):
             return response.error([], "Akun belum diverifikasi melalui OTP")
 
-        token = generate_token(str(user["_id"]))
+        token = generate_token(user["email"])
+
         return response.success({
             "token": token,
             "user": serialize_user(user)
@@ -76,6 +79,7 @@ class UserController:
         data = request.get_json()
         id_token_str = data.get("idToken")
         if not id_token_str:
+            print("📥 Menerima ID Token dari client:", id_token_str)
             return response.error([], "Token tidak ditemukan")
 
         try:
@@ -85,7 +89,7 @@ class UserController:
                 GOOGLE_CLIENT_ID
             )
             email = idinfo["email"]
-            nama = idinfo.get("name", "Pengguna Google")
+            nama = idinfo.get("nama", "Pengguna Google")
 
             user = mongo.db.user.find_one({"email": email})
             if not user:
@@ -99,12 +103,18 @@ class UserController:
                 })
                 user = mongo.db.user.find_one({"email": email})
 
+            # ✅ Tambahkan ini untuk mengirim token
+            token = generate_token(user["email"])
+
+
             return response.success({
+                "token": token,
                 "user": serialize_user(user)
             }, "Login Google berhasil")
 
         except Exception as e:
             return response.error([], f"Token tidak valid: {str(e)}")
+
 
     @staticmethod
     def verify_otp():
@@ -185,12 +195,13 @@ class UserController:
             )
 
     @staticmethod
+    @jwt_required()
     def update_jenis_kelamin():
         data = request.get_json()
-        email = data.get("email")
         jenis_kelamin = data.get("jenis_kelamin")
+        email = get_jwt_identity()
 
-        if not email or not jenis_kelamin:
+        if not jenis_kelamin:
             return jsonify({"success": False, "message": "Data tidak lengkap"}), 400
 
         result = mongo.db.user.update_one(
@@ -205,14 +216,14 @@ class UserController:
 
         return jsonify({"success": True, "message": "Jenis kelamin berhasil diperbarui"})
 
-    
     @staticmethod
+    @jwt_required()
     def update_umur():
         data = request.get_json()
-        email = data.get("email")
         umur = data.get("umur")
+        email = get_jwt_identity()
 
-        if not email or umur is None:
+        if umur is None:
             return jsonify({"success": False, "message": "Data tidak lengkap"}), 400
 
         result = mongo.db.user.update_one(
@@ -227,13 +238,15 @@ class UserController:
 
         return jsonify({"success": True, "message": "Umur berhasil diperbarui"})
 
+
     @staticmethod
+    @jwt_required()
     def update_tinggi():
         data = request.get_json()
-        email = data.get("email")
         tinggi = data.get("tinggi")
+        email = get_jwt_identity()
 
-        if not email or tinggi is None:
+        if tinggi is None:
             return jsonify({"success": False, "message": "Data tidak lengkap"}), 400
 
         result = mongo.db.user.update_one(
@@ -248,13 +261,15 @@ class UserController:
 
         return jsonify({"success": True, "message": "Tinggi badan berhasil diperbarui"})
 
+
     @staticmethod
+    @jwt_required()
     def update_berat():
         data = request.get_json()
-        email = data.get("email")
         berat = data.get("berat")
+        email = get_jwt_identity()
 
-        if not email or berat is None:
+        if berat is None:
             return jsonify({"success": False, "message": "Data tidak lengkap"}), 400
 
         result = mongo.db.user.update_one(
@@ -268,6 +283,7 @@ class UserController:
         UserController.update_profile_status(email)
 
         return jsonify({"success": True, "message": "Berat badan berhasil diperbarui"})
+
     
     @staticmethod
     def logout():
