@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# VSCode config
+.vscode/
+
+# Upload folder (jika berisi file runtime)
+upload/
